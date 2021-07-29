@@ -24,10 +24,10 @@ import serial
 from serial.tools.list_ports import comports
 
 def pack(fmt, *args):
-    return struct.pack('<' + fmt, *args)
+	return struct.pack('<' + fmt, *args)
 
 def unpack(fmt, *args):
-    return struct.unpack('<' + fmt, *args)
+	return struct.unpack('<' + fmt, *args)
 
 def multichr(ords):
 	if sys.version_info[0] >= 3:
@@ -88,6 +88,8 @@ class BT(object):
 
 	# internal data-handling methods
 	def recv_packet(self, timeout=None):
+		n = self.ser.inWaiting() # Windows fix
+
 		t0 = time.time()
 		self.ser.timeout = None
 		while timeout is None or time.time() < t0 + timeout:
@@ -98,11 +100,16 @@ class BT(object):
 				return None
 
 			ret = self.proc_byte(ord(c))
-			if ret:
+			if ret:	
 				if ret.typ == 0x80:
 					self.handle_event(ret)
+					# Windows fix
+					if n >= 5096:
+						print("Clearning",n)
+						self.ser.flushInput()
+					# End of Windows fix
 				return ret
-
+		
 	def recv_packets(self, timeout=.5):
 		res = []
 		t0 = time.time()
@@ -654,7 +661,10 @@ if __name__ == '__main__':
 							m.vibrate(ev.key - K_KP0)
 
 	except KeyboardInterrupt:
-		pass
+		m.disconnect()
+		if HAVE_PYGAME:
+			pygame.quit()
+		quit()
 	finally:
 		if HAVE_PYGAME:
 			pygame.quit()
