@@ -11,6 +11,9 @@
 	Edited by perlinwarp
 		https://github.com/PerlinWarp/Neuro-Breakout
 
+Warning, when using this library in a multithreaded way, 
+know that any function called on Myo_Raw, may try to use the serial port,
+in windows if this is tried from a seperate thread you will get a permission error
 '''
 
 import enum
@@ -89,7 +92,6 @@ class BT(object):
 	# internal data-handling methods
 	def recv_packet(self):
 		n = self.ser.inWaiting() # Windows fix
-		print(n)
 
 		while True:
 			c = self.ser.read()
