@@ -1,6 +1,4 @@
-import pygame
 import multiprocessing
-
 from myo_serial import MyoRaw
 
 # ------------ Myo Setup ---------------
