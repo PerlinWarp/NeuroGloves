@@ -8,7 +8,7 @@ from myo_serial import MyoRaw
 
 # Arguments
 COM_PORT = "COM8"
-FILE_NAME = "myo_raw_glove" + ".csv"
+FILE_NAME = "myo_raw_glove2" + ".csv"
 
 # Serial Setup
 def decode_serial(s):
@@ -97,7 +97,7 @@ if __name__ == '__main__':
 			while not q.empty():
 				emg = list(q.get())
 				glove = list(arr)
-				print("Myo: ",list(q.get()))
+				print("Myo: ",emg)
 				print("Serial", list(arr))
 				myo_data.append(emg)
 				glove_data.append(glove)
