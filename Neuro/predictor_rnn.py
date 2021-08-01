@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
 	# Model Setup
 	# Load the Keras model
-	model_name = "LSTMBasic-SEQ-20"
+	model_name = "LSTMBasic2-SEQ-20"
 	model = load_model(f"../models/{model_name}.h5")
 
 	input_scaler = joblib.load(f'../models/{model_name}-EMG.gz')
@@ -89,16 +89,15 @@ if __name__ == '__main__':
 		try:
 			while not q.empty():
 				emg = list(q.get())
-				print("EMG:", emg)
+				#print("EMG:", emg)
 				dq.append(emg)
 				emgs = list(dq)
 				if (len(emgs) == SEQ_LEN):
 					e = predict(emgs)
-					print("Pred:", e)
 
 					if e is not None:
 						vals = pack_vals(e)
-						print("VALS", e)
+						print("Vals: {:03d},{:03d},{:03d},{:03d},{:03d}".format(vals[0],vals[1],vals[2],vals[3],vals[4]))
 						ser.write(vals)
 				else:
 					print("dq", emgs)

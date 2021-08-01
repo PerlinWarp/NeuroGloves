@@ -2,6 +2,9 @@ import multiprocessing
 from myo_serial import MyoRaw
 import numpy as np
 
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
 from keras.models import load_model
 import joblib
 
@@ -82,11 +85,10 @@ if __name__ == '__main__':
 				emg = list(q.get())
 				print("EMG:", emg)
 				e = predict(emg)
-				print("Pred:", e)
 
 				if e is not None:
 					vals = pack_vals(e)
-					print("VALS", e)
+					print("Vals: {:03d},{:03d},{:03d},{:03d},{:03d}".format(e[0],e[1],e[2],e[3],e[4]))
 					ser.write(vals)
 
 		except KeyboardInterrupt:
