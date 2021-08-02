@@ -1,18 +1,11 @@
 import multiprocessing
 from myo_serial import MyoRaw
 import numpy as np
-
-import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-
-from keras.models import load_model
-import joblib
-
 import serial
 
 def pack_vals(arr):
 		# arr should be of length 13
-		return b"%d&%d&%d&%d&%d&512&512&0&0&0&0&0&0\n" % tuple(arr)
+		return b"%d&%d&%d&%d&%d&512&512&0&0&0&0&%d&0\n" % tuple(arr)
 
 # ------------ Myo Setup ---------------
 def myo_worker(q):
@@ -44,22 +37,46 @@ def myo_worker(q):
 			m.disconnect()
 	print("Worker Stopped")
 
+class Predictor:
+	def __init__(self):
+		self.grasp = False
+		self.last_grasp = False
 
-def predict(emg_data):
-	emg_data = np.array(emg_data).reshape(1,8)
+	def predict(self, emg_data):
+		'''
+		return [0,1,2,3,4,5]
+		where 5 is the grasp (0/1)
+		'''
+		emg_data = np.array(emg_data).reshape(1,8)
 
-	# Rectify: [-128, 127] -> [0,256]
-	emg_data = np.abs(emg_data)
-	# Scale the input
-	scaled_input = input_scaler.transform(emg_data)
-	
-	# Get a prediction
-	pred = model.predict(scaled_input)
-	# Scale it back to a value
-	scaled_pred = output_scaler.inverse_transform(pred)
-	scaled_pred = scaled_pred[0].astype(int)
-	pred = list(scaled_pred)
-	return pred
+		# Rectify: [-128, 127] -> [0,256]
+		emg_data = np.abs(emg_data)
+		# Scale the input
+		s = np.sum(emg_data)
+		s = int((s/3000)*1023)
+		print("SUM", s)
+		if (s < 200):
+			self.grasp = False
+			if (s < 150):
+				s = 0
+		# Decide the grasp prediction
+		if (s > 600):
+			self.grasp = True
+		if (s > 200 and self.last_grasp == True):
+			print("Grasping")
+			self.grasp = True
+			s = 1010
+		# Make a prediction from s
+		pred = [s]*5
+		if self.grasp:
+			pred.append(1)
+		else:
+			pred.append(0)
+
+		# Update last grasp
+		print(self.grasp, self.last_grasp)
+		self.last_grasp = self.grasp
+		return pred
 
 if __name__ == '__main__':
 	# Serial Setup
@@ -67,24 +84,16 @@ if __name__ == '__main__':
 	print("Writing to", ser.name)         # check which port was really used
 	ser.write(b'hello\n')     # write a string
 
-	# Model Setup
-	# Load the Keras model
-	model_name = "NNBasic"
-	model = load_model(f"../models/{model_name}.h5")
-
-	input_scaler = joblib.load(f'../models/{model_name}-EMG.gz')
-	output_scaler = joblib.load(f'../models/{model_name}-Hand.gz')
-
 	q = multiprocessing.Queue()
 	p = multiprocessing.Process(target=myo_worker, args=(q,))
 	p.start()
-
+	predictor = Predictor()
 	while True:
 		try:
 			while not q.empty():
 				emg = list(q.get())
 				print("EMG:", emg)
-				e = predict(emg)
+				e = predictor.predict(emg)
 
 				if e is not None:
 					vals = pack_vals(e)

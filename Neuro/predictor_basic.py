@@ -16,8 +16,8 @@ Uses class 0 as resting
 1 - Thumb curl
 ...
 5 - Pinky curl
-6 - Grasp
-7 - Point
+6 - Grab
+7 - Pinch
 '''
 
 SUBSAMPLE = 3
@@ -27,11 +27,13 @@ def pack_vals(arr):
 		# arr should be of length 13
 		'''
 		0 - 4 - flexion
+		5 - JoyX - Default at 512?
+		6 - JoyY
 		...
 		12 - grab 0/1
 		13 - pinch 0/1
 		'''
-		return b"%d&%d&%d&%d&%d&0&0&0&0&0&0&%d&%d\n" % tuple(arr)
+		return b"%d&%d&%d&%d&%d&521&521&0&0&0&0&%d&%d\n" % tuple(arr)
 
 class Classifier(object):
 	'''A wrapper for nearest-neighbor classifier that stores
@@ -190,13 +192,17 @@ if __name__ == '__main__':
 				pass
 			elif f == 6:
 				# Activate grab
-				fingers[5] = 1
+				print("Grab")
+				fingers = [800,800,800,800,800,1,0]
+				#fingers[5] = 1
 			elif f == 7:
 				# Activate Pinch
-				fingers[6] = 1
+				print("Pinch")
+				fingers = [800,800,800,800,800,0,1]
+				#fingers[6] = 1
 			else:
 				# We have predicted a finger
-				fingers[f+1] = int(1023 * m.history_cnt[r]/m.HIST_LEN)
+				fingers[f-1] = int(1023 * m.history_cnt[r]/m.HIST_LEN)
 			vals = pack_vals(fingers)
 			print(vals)
 			ser.write(vals)
