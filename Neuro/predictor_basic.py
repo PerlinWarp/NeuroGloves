@@ -132,6 +132,7 @@ class EMGHandler(object):
 if __name__ == '__main__':
 	# Serial Setup
 	ser = serial.Serial('COM6','115200')  # open serial port
+	ser.flushInput()
 	print("Writing to", ser.name, "\nWaiting for consumer")         # check which port was really used
 
 	pygame.init()
@@ -188,21 +189,22 @@ if __name__ == '__main__':
 			print(f"Class {r}, \"Confidence\", {m.history_cnt[r]/m.HIST_LEN}")
 			fingers = [0,0,0,0,0,0,0]
 			f = int(r)
+			scaled_conf = int(1023 * m.history_cnt[r]/m.HIST_LEN)
 			if f == 0:
 				pass
 			elif f == 6:
 				# Activate grab
 				print("Grab")
-				fingers = [800,800,800,800,800,1,0]
+				fingers = [scaled_conf,scaled_conf,scaled_conf,scaled_conf,scaled_conf,1,0]
 				#fingers[5] = 1
 			elif f == 7:
 				# Activate Pinch
 				print("Pinch")
-				fingers = [800,800,800,800,800,0,1]
+				fingers = [scaled_conf,scaled_conf,scaled_conf,scaled_conf,scaled_conf,0,1]
 				#fingers[6] = 1
 			else:
 				# We have predicted a finger
-				fingers[f-1] = int(1023 * m.history_cnt[r]/m.HIST_LEN)
+				fingers[f-1] = scaled_conf
 			vals = pack_vals(fingers)
 			print(vals)
 			ser.write(vals)
@@ -212,9 +214,11 @@ if __name__ == '__main__':
 		m.disconnect()
 		print()
 		pygame.quit()
+		ser.flushInput()
 		ser.close()
 	finally:
 		m.disconnect()
 		print()
 		pygame.quit()
+		ser.flushInput()
 		ser.close()

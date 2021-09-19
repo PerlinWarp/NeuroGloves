@@ -1,4 +1,7 @@
 __pycache__/*
 Neuro/__pycache__/*
-.ipynb_checkpoints/*
+*/.ipynb_checkpoints/*
+
+# Stop people uploading data unless they really know what they're doing
 *.dat
+*.csv

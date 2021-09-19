@@ -160,7 +160,9 @@ if __name__ == '__main__':
             pygame.display.flip()
 
     except KeyboardInterrupt:
-        pass
+        m.disconnect()
+        pygame.quit()
+        quit()
     finally:
         m.disconnect()
         print()
