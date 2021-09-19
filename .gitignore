@@ -1,2 +1,4 @@
 __pycache__/*
+Neuro/__pycache__/*
 .ipynb_checkpoints/*
+*.dat
