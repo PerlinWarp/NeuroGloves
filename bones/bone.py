@@ -76,6 +76,10 @@ right_pose = np.array([
 ])
 
 def plot_pose(pose):
+    # Plot setup
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d', xlim=(-1, 1), ylim=(-1, 1), zlim=(-1, 1))
+
     xs = []
     ys = []
     zs = []
@@ -97,17 +101,26 @@ def plot_pose(pose):
         x = c[1][0]
         y = c[1][1]
         z = c[1][2]
+
         for point in finger:
+            last_x = x
+            last_y = y
+            last_z = z
             x += point[0]
             y += point[1]
             z += point[2]
             xs.append(x)
             ys.append(y)
             zs.append(z)
-    
-    # Plot those points
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d', xlim=(-1, 1), ylim=(-1, 1), zlim=(-1, 1))
+
+            # Draw lines between this joint and the previous
+            l = plt3d.art3d.Line3D([x, last_x], [y, last_y], [z, last_z])
+            ax.add_line(l)
+
+        last_x = c[1][0]
+        last_y = c[1][1]
+        last_z = c[1][2]
+
     ax.scatter(xs,ys,zs)
     plt.show()
 
