@@ -8,6 +8,8 @@ import mpl_toolkits.mplot3d as plt3d
 https://github.com/ValveSoftware/openvr/wiki/Hand-Skeleton
 https://math.stackexchange.com/questions/40164/how-do-you-rotate-a-vector-by-a-unit-quaternion
 Example glb from OpenGloves, originally from steamvr/drivers/indexcontroller
+Steam's OpenVR Uses (w,z,y,z) for Quaternions as defined in HmdQuaternionf_t
+
 0 RootNode, 
 1 REF:Root, 
 2 REF:wrist_r, # All metacarpal positons are relative to this. 
@@ -43,9 +45,10 @@ Example glb from OpenGloves, originally from steamvr/drivers/indexcontroller
 '''
 
 right_pose = np.array([
-	# Position (x,y,z,1) , Quaternion (x,y,z,w)
-	[[0.000000, 0.000000, 0.000000, 1.000000], [1.000000, -0.000000, -0.000000, 0.000000]],
-	[[0.034038, 0.036503, 0.164722, 1.000000], [-0.055147, -0.078608, 0.920279, -0.379296]], # Wrist
+	# Position{HmdVector4_t} (x,y,z,1) , Quaternion{HmdQuaternionf_t} (w,x,y,z)
+	# https://github.com/ValveSoftware/openvr/issues/505
+	[[0.000000, 0.000000, 0.000000, 1.000000], [1.000000, -0.000000, -0.000000, 0.000000]], # 0 - Root Node, Dan Skipped the Ref:Root
+	[[0.034038, 0.036503, 0.164722, 1.000000], [-0.055147, -0.078608, 0.920279, -0.379296]], # 2 - Wrist
 	[[0.012083, 0.028070, 0.025050, 1.000000], [0.567418, -0.464112, 0.623374, -0.272106]], # Thumb Meta
 	[[-0.040406, -0.000000, 0.000000, 1.000000], [0.994838, 0.082939, 0.019454, 0.055130]],
 	[[-0.032517, -0.000000, -0.000000, 1.000000], [0.974793, -0.003213, 0.021867, -0.222015]],
@@ -70,6 +73,7 @@ right_pose = np.array([
 	[[-0.030220, -0.000000, -0.000000, 1.000000], [0.994317, 0.001896, -0.000132, 0.106446]],
 	[[-0.018187, -0.000000, -0.000000, 1.000000], [0.995931, -0.002010, -0.052079, -0.073526]],
 	[[-0.018018, -0.000000, 0.000000, 1.000000], [1.000000, 0.000000, 0.000000, 0.000000]],
+	# https://github.com/ValveSoftware/openvr/wiki/Hand-Skeleton#auxiliary-bones
 	[[0.006059, 0.056285, 0.060064, 1.000000], [0.737238, 0.202745, -0.594267, -0.249441]], # thumb aux
 	[[0.040416, -0.043018, 0.019345, 1.000000], [-0.290331, 0.623527, 0.663809, 0.293734]], # index aux
 	[[0.039354, -0.075674, 0.047048, 1.000000], [-0.187047, 0.678062, 0.659285, 0.265683]], # middle aux
@@ -112,6 +116,7 @@ right_fist_pose = np.array([
 ])
 
 def quaternion_multiply(quaternion1, quaternion0):
+	# Computes the Hamilton product
 	w0, x0, y0, z0 = quaternion0
 	w1, x1, y1, z1 = quaternion1
 	return np.array([-x1 * x0 - y1 * y0 - z1 * z0 + w1 * w0,
@@ -119,11 +124,21 @@ def quaternion_multiply(quaternion1, quaternion0):
 					 -x1 * z0 + y1 * w0 + z1 * x0 + w1 * y0,
 					 x1 * y0 - y1 * x0 + z1 * w0 + w1 * z0], dtype=np.float64)
 
+def q_mult(q1, q2):
+    w1, x1, y1, z1 = q1
+    w2, x2, y2, z2 = q2
+    w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
+    x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
+    y = w1 * y2 + y1 * w2 + z1 * x2 - x1 * z2
+    z = w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2
+    return np.array([w, x, y, z])
+
 def rotate_pose(pose):
 	'''
 	For all the points in the hand
 	we rotate by the quaternion
 	returns rotated points
+	See: https://www.meccanismocomplesso.org/en/hamiltons-quaternions-and-3d-rotation-with-python/
 	'''
 	# x,y,z coordinates of the pose
 	rotated_points = []
@@ -131,36 +146,43 @@ def rotate_pose(pose):
 	for row in pose:
 		c, q = row
 		print(c)
+		# Convert Quaternion layout that glb uses
 		x, y, z, w = q
-		p1, p2, p3, one  = c
-		vec = [0, p1, p2, p3]
+		sp_x, sp_y, sp_z, one  = c
+		'''
+		In SteamVR
+		+Y is up
+		+X is to the right
+		-Z is forward
+		In MatplotLib
+		+Z is up
+		+Y is to the right
+		-X is forward
+		'''
+		vec = [0, sp_x, sp_z, sp_y]
 		r = [w, x, y, z]
-		rt = [w, -x, -y, -z]
-		rotated_point = quaternion_multiply(quaternion_multiply(r, vec), rt)
-		print(rotated_point)
-		rotated_points.append(rotated_point)
-	# Due to quaternion representation, the first element will always be 0
-	rotated_points = np.array(rotated_points)[:,1:]
-	print(rotated_points)
+		# Calculate the Quaternion Conjugate
+		r_c = [w, -x, -y, -z]
+		# Rotate the point
+		#rotated_point = quaternion_multiply(quaternion_multiply(r, vec), r_c)
+		rotated_point = q_mult(q_mult(r, vec), r_c)
+		print("rp, ",rotated_point)
+		# Due to quaternion representation, the first element will always be 0
+		rotated_points.append(rotated_point[1:])
+	rotated_points = np.array(rotated_points)
+	#print(rotated_points)
 	return rotated_points
 
-def plot_steam_hand(points, title="Steam Hand"):
+def local_to_global_hand(points):
 	'''
-	Expects the coordinates of a pose, not including the quaternions
-	points.shape == (31, 3)
+	Converts the relative points in SteamHand to global points by building the hand
 	'''
-	# Plot setup
-	fig = plt.figure(title)
-	ax = fig.add_subplot(111, projection='3d', xlim=(-0.2, 0.2), ylim=(-0.2, 0.2), zlim=(0, 0.4))
-	ax.set_xlabel('X [m]')
-	ax.set_ylabel('Y [m]')
-	ax.set_zlabel('Z [m]')
-
-	xs = []
-	ys = []
-	zs = []
-	# get the x,y,z rotated coordinates of the pose
 	c = points
+	# Add the wrist
+	xs = [c[1][0]]
+	ys = [c[1][1]]
+	zs = [c[1][2]]
+	# get the x,y,z rotated coordinates of the pose
 	# Seperate the fingers
 	thumb = c[2:6]
 	index = c[6:11]
@@ -171,14 +193,12 @@ def plot_steam_hand(points, title="Steam Hand"):
 	# Read the file format into x,y,z and build the hand
 	fingers = [thumb, index, middle, ring, pinky]
 	for finger in fingers:
+		# Use the wrist the first time
 		x = c[1][0]
 		y = c[1][1]
 		z = c[1][2]
 
 		for point in finger:
-			last_x = x
-			last_y = y
-			last_z = z
 			x += point[0]
 			y += point[1]
 			z += point[2]
@@ -186,24 +206,107 @@ def plot_steam_hand(points, title="Steam Hand"):
 			ys.append(y)
 			zs.append(z)
 
-			# Draw lines between this joint and the previous
-			l = plt3d.art3d.Line3D([x, last_x], [y, last_y], [z, last_z])
-			ax.add_line(l)
+	hand_points = np.array([xs, ys, zs]).T
+	return hand_points
 
-		last_x = c[1][0]
-		last_y = c[1][1]
-		last_z = c[1][2]
+def plot_steam_hand_points(points, title="Steam Hand Points"):
+	'''
+	Expects the *relative* coordinates of a pose, not including the quaternions
+	points.shape == (31, 3)
+	'''
+	# Plot setup
+	fig = plt.figure(title)
+	ax = fig.add_subplot(111, projection='3d', xlim=(-0.2, 0.2), ylim=(-0.2, 0.2), zlim=(0, 0.4))
+	ax.set_xlabel('X [m]')
+	ax.set_ylabel('Y [m]')
+	ax.set_zlabel('Z [m]')
 
+	hand_points = local_to_global_hand(points)
+	print("hps", hand_points.shape)
+
+	xs = hand_points[:,0]
+	ys = hand_points[:,1]
+	zs = hand_points[:,2]
 	ax.scatter(xs,ys,zs)
+	plt.show()
+
+
+def plot_steam_hand(rel_points, title="Steam Hand"):
+	'''
+	Expects the *relative* coordinates of a pose, not including the quaternions
+	points.shape == (31, 3)
+	'''
+	# Plot setup
+	fig = plt.figure(title)
+	ax = fig.add_subplot(111, projection='3d', xlim=(-0.2, 0.2), ylim=(-0.2, 0.2), zlim=(0, 0.4))
+	ax.set_xlabel('X [m]')
+	ax.set_ylabel('Y [m]')
+	ax.set_zlabel('Z [m]')
+
+	hand_points = local_to_global_hand(rel_points)
+	xs = hand_points[:,0]
+	ys = hand_points[:,1]
+	zs = hand_points[:,2]
+	print("Rel", rel_points.shape)
+	print("Global", hand_points.shape)
+	# Plot the Points that make up the hand
+	ax.scatter(xs,ys,zs)
+
+	# Draw lines between them
+	# Seperate the fingers
+	c = hand_points
+
+	# Draw the thumb
+	for n in [1,2,3]:
+		l = plt3d.art3d.Line3D([c[n,0], c[n+1,0]], [c[n,1], c[n+1,1]], [c[n,2], c[n+1,2]], color="lime")
+		ax.add_line(l)
+	# Index
+	for n in range(5,9):
+		l = plt3d.art3d.Line3D([c[n,0], c[n+1,0]], [c[n,1], c[n+1,1]], [c[n,2], c[n+1,2]], color='firebrick')
+		ax.add_line(l)
+	# Middle
+	for n in range(10,14):
+		l = plt3d.art3d.Line3D([c[n,0], c[n+1,0]], [c[n,1], c[n+1,1]], [c[n,2], c[n+1,2]], color='purple')
+		ax.add_line(l)
+	# Ring Finger
+	for n in range(15,19):
+		l = plt3d.art3d.Line3D([c[n,0], c[n+1,0]], [c[n,1], c[n+1,1]], [c[n,2], c[n+1,2]], color='blue')
+		ax.add_line(l)
+	# Pinky finger
+	for n in range(20,24):
+		l = plt3d.art3d.Line3D([c[n,0], c[n+1,0]], [c[n,1], c[n+1,1]], [c[n,2], c[n+1,2]], color='pink')
+		ax.add_line(l)
+	
+	# Draw lines to connect the metacarpals
+	for i in range(4):
+		ms = [2, 6,11,16,21]
+		l = plt3d.art3d.Line3D([c[ms[i],0], c[ms[i+1],0]], [c[ms[i],1], c[ms[i+1],1]], [c[ms[i],2], c[ms[i+1],2]], color="aqua")
+		ax.add_line(l)
+	# Draw lines to connect the hand
+	for i in range(4):
+		ms = [1, 5,10,15,20]
+		l = plt3d.art3d.Line3D([c[ms[i],0], c[ms[i+1],0]], [c[ms[i],1], c[ms[i+1],1]], [c[ms[i],2], c[ms[i+1],2]], color="aqua")
+		ax.add_line(l)
+	# Connect the bottom of the hand together
+	l = plt3d.art3d.Line3D([c[1,0], c[20,0]], [c[1,1], c[20,1]], [c[1,2], c[20,2]], color="aqua")
+	ax.add_line(l)
+	l = plt3d.art3d.Line3D([c[1,0], c[0,0]], [c[1,1], c[0,1]], [c[1,2], c[0,2]], color="aqua")
+	ax.add_line(l)
+	l = plt3d.art3d.Line3D([c[0,0], c[20,0]], [c[0,1], c[20,1]], [c[0,2], c[20,2]], color="aqua")
+	ax.add_line(l)
+
+
 	plt.show()
 
 if __name__ == "__main__":
 	pose_quards = right_fist_pose[:,0,:3]
 	# Try building a hand from the glb only using the x,y,z
+	#plot_steam_hand_points(pose_quards)
+
 	plot_steam_hand(pose_quards)
 
-	# rotates each point in the pose, around the origin by the quaternion then builds the hand
+	# # rotates each point in the pose, around the origin by the quaternion then builds the hand
 	right_fist_pose = rotate_pose(right_fist_pose)
 	plot_steam_hand(right_fist_pose, "Right fist pose")
 	right_pose = rotate_pose(right_pose)
-	plot_steam_hand(right_pose, "Right pose")
+	plot_steam_hand(right_pose, "Right Open pose")
