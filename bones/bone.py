@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
@@ -81,10 +82,46 @@ right_pose = np.array([
 	[[0.031806, -0.087214, 0.121015, 1.000000], [-0.003659, 0.758407, 0.639342, 0.126678]], # pinky aux
 ])
 
+right_pose2 = np.array([
+	# Position{HmdVector4_t} (x,y,z,1) , Quaternion{HmdQuaternionf_t} (w,x,y,z)
+	# Sourced from Unity SteamVR plugin.
+	[[0, 0, 0, 1], [-6.123234e-17, 1, 6.123234e-17, -4.371139e-08]],
+	[[-0.034037687, 0.03650266, 0.16472164, 1], [-0.078608155, -0.92027926, 0.3792963, -0.055146642]],
+	[[-0.012083233, 0.028070247, 0.025049694, 1], [-0.46411175, -0.623374, 0.2721063, 0.5674181]], 
+	[[0.040405963, -5.1561553e-08, 4.5447194e-08, 1], [0.08293856, -0.019454371, -0.055129882, 0.9948384]],
+	[[0.032516792, -5.1137583e-08, -1.2933195e-08, 1], [-0.0032133153, -0.021866836, 0.22201493, 0.9747928]],
+	[[0.030463902, 1.6269207e-07, 7.92839e-08, 1], [-1.3877788e-17, -1.3877788e-17, -5.551115e-17, 1]],
+	[[0.0006324522, 0.026866155, 0.015001948, 1], [-0.6442515, -0.42213318, -0.4782025, 0.42197865]], 
+	[[0.074204385, 0.005002201, -0.00023377323, 1], [0.0070068412, 0.039123755, -0.08794935, 0.9953317]],
+	[[0.043930072, 5.9567498e-08, 1.8367103e-07, 1], [0.045808382, -0.0021422536, 0.0459431, 0.9978909]],
+	[[0.02869547, -9.398158e-08, -1.2649753e-07, 1], [0.0018504566, 0.022782495, 0.013409463, 0.9996488]],
+	[[0.022821384, -1.4365155e-07, 7.651614e-08, 1], [6.938894e-18, 1.9428903e-16, -1.348151e-33, 1]],
+	[[0.0021773134, 0.007119544, 0.016318738, 1], [-0.546723, -0.46074906, -0.44252017, 0.54127645]],
+	[[0.07095288, -0.00077883265, -0.000997186, 1], [-0.16726136, 0.0789587, -0.06936778, 0.9802945]],
+	[[0.043108486, -9.950596e-08, -6.7041825e-09, 1], [0.018492563, -0.013192348, -0.05988611, 0.99794674]],
+	[[0.033266045, -1.320567e-08, -2.1670374e-08, 1], [-0.003327809, 0.028225154, 0.066315144, 0.9973939]],
+	[[0.025892371, 9.984198e-08, -2.0352908e-09, 1], [1.1639192e-17, -5.602331e-17, -0.040125635, 0.9991947]],
+	[[0.0005134356, -0.0065451227, 0.016347693, 1], [-0.5166922, -0.4298879, -0.49554786, 0.5501435]],
+	[[0.06587581, -0.0017857892, -0.00069344096, 1], [-0.058696117, 0.10181952, -0.072495356, 0.9904201]],
+	[[0.04069671, -9.5347104e-08, -2.2934731e-08, 1], [-0.0022397265, -3.9300317e-06, -0.030081047, 0.999545]],
+	[[0.028746964, 1.0089892e-07, 4.5306827e-08, 1], [-0.00072132144, 0.012692659, -0.040420394, 0.9991019]],
+	[[0.022430236, 1.0846127e-07, -1.7428562e-08, 1], [6.938894e-18, -9.62965e-35, -1.3877788e-17, 1]],
+	[[-0.002478151, -0.01898137, 0.015213584, 1], [-0.5269183, -0.32674035, -0.5840246, 0.52394]],
+	[[0.0628784, -0.0028440945, -0.0003315112, 1], [-0.059614867, 0.13516304, -0.06913207, 0.9866093]],
+	[[0.030219711, -3.418319e-08, -9.332872e-08, 1], [0.0018961236, 0.00013150928, -0.10644623, 0.99431664]],
+	[[0.018186597, -5.0220166e-09, -2.0934549e-07, 1], [-0.00201019, 0.052079126, 0.073525675, 0.99593055]],
+	[[0.01801794, -2.00012e-08, 6.59746e-08, 1], [0, 0, 1.9081958e-17, 1]],
+	[[-0.0060591106, 0.05628522, 0.060063843, 1], [0.20274544, 0.59426665, 0.2494411, 0.73723847]],
+	[[-0.04041555, -0.043017667, 0.019344581, 1], [0.6235274, -0.66380864, -0.29373443, -0.29033053]],
+	[[-0.03935372, -0.07567404, 0.047048334, 1], [0.6780625, -0.6592852, -0.26568344, -0.18704711]],
+	[[-0.038340144, -0.09098663, 0.08257892, 1], [0.7367927, -0.6347571, -0.14393571, -0.18303718]],
+	[[-0.031805996, -0.08721431, 0.12101539, 1], [0.7584072, -0.6393418, -0.12667806, -0.0036594148]]
+])
+
 right_fist_pose = np.array([
 	[[0.000000, 0.000000, 0.000000, 1.000000], [1.000000, -0.000000, -0.000000, 0.000000]],
-	[[0.034038, 0.036503, 0.164722, 1.000000], [-0.055147, -0.078608, 0.920279, -0.379296]],
-	[[0.016305, 0.027529, 0.017800, 1.000000], [0.483332, -0.225703, 0.836342, -0.126413]],
+	[[0.034038, 0.036503, 0.164722, 1.000000], [-0.055147, -0.078608, 0.920279, -0.379296]], # 2 - Wrist
+	[[0.016305, 0.027529, 0.017800, 1.000000], [0.483332, -0.225703, 0.836342, -0.126413]], # Thumb meta
 	[[-0.040406, -0.000000, 0.000000, 1.000000], [0.894335, -0.013302, -0.082902, 0.439448]],
 	[[-0.032517, -0.000000, -0.000000, 1.000000], [0.842428, 0.000655, 0.001244, 0.538807]],
 	[[-0.030464, 0.000000, 0.000000, 1.000000], [1.000000, -0.000000, -0.000000, 0.000000]],
@@ -115,140 +152,183 @@ right_fist_pose = np.array([
 	[[-0.003263, -0.034685, 0.139926, 1.000000], [0.019690, -0.100741, 0.957331, 0.270149]],
 ])
 
-def quaternion_multiply(quaternion1, quaternion0):
-	# Computes the Hamilton product
-	w0, x0, y0, z0 = quaternion0
-	w1, x1, y1, z1 = quaternion1
-	return np.array([-x1 * x0 - y1 * y0 - z1 * z0 + w1 * w0,
-					 x1 * w0 + y1 * z0 - z1 * y0 + w1 * x0,
-					 -x1 * z0 + y1 * w0 + z1 * x0 + w1 * y0,
-					 x1 * y0 - y1 * x0 + z1 * w0 + w1 * z0], dtype=np.float64)
+right_fist_pose2 = np.array([
+	# Sourced from Unity SteamVR plugin.
+	[[0.000000, 0.000000, 0.000000, 1.000000],   [-6.123234e-17, 1, 6.123234e-17, -4.371139e-08]],
+	[[-0.034037687, 0.03650266, 0.16472164, 1],  [-0.078608155, -0.92027926, 0.3792963, -0.055146642]],
+	[[-0.016305087, 0.027528726, 0.017799662, 1], [-0.2257035, -0.836342, 0.12641343, 0.48333195]],
+	[[0.040405963, -5.1561553e-08, 4.5447194e-08, 1], [-0.01330204, 0.0829018, -0.43944824, 0.89433527]],
+	[[0.032516792, -5.1137583e-08, -1.2933195e-08, 1], [0.00072834245, -0.0012028969, -0.58829284, 0.80864674]],
+	[[0.030463902, 1.6269207e-07, 7.92839e-08, 1], [-1.3877788e-17, -1.3877788e-17, -5.551115e-17, 1]],
+	[[0.0038021489, 0.021514187, 0.012803366, 1], [-0.6173145, -0.44918522, -0.5108743, 0.39517453]], 
+	[[0.074204385, 0.005002201, -0.00023377323, 1], [-0.041852362, 0.11180638, -0.72633374, 0.67689514]],
+	[[0.043286677, 5.9333324e-08, 1.8320057e-07, 1], [-0.0005700487, 0.115204416, -0.81729656, 0.56458294]],
+	[[0.028275194, -9.297885e-08, -1.2653295e-07, 1], [-0.010756178, 0.027241308, -0.66610956, 0.7452787]],
+	[[0.022821384, -1.4365155e-07, 7.651614e-08, 1], [6.938894e-18, 1.9428903e-16, -1.348151e-33, 1]],
+	[[0.005786922, 0.0068064053, 0.016533904, 1], [-0.5142028, -0.4836996, -0.47834843, 0.522315]],
+	[[0.07095288, -0.00077883265, -0.000997186, 1], [-0.09487112, -0.05422859, -0.7229027, 0.68225396]],
+	[[0.043108486, -9.950596e-08, -6.7041825e-09, 1], [0.0076794685, -0.09769542, -0.7635977, 0.6382125]],
+	[[0.03326598, -1.7544496e-08, -2.0628962e-08, 1], [-0.06366954, 0.00036316764, -0.7530614, 0.6548623]],
+	[[0.025892371, 9.984198e-08, -2.0352908e-09, 1], [1.1639192e-17, -5.602331e-17, -0.040125635, 0.9991947]],
+	[[0.004123044, -0.0068582613, 0.016562859, 1], [-0.489609, -0.46399677, -0.52064353, 0.523374]],
+	[[0.06587581, -0.0017857892, -0.00069344096, 1], [-0.088269405, 0.012672794, -0.7085384, 0.7000152]],
+	[[0.040331207, -9.449958e-08, -2.273692e-08, 1], [-0.0005935501, -0.039828163, -0.74642265, 0.66427904]],
+	[[0.028488781, 1.01152565e-07, 4.5493586e-08, 1], [-0.027121458, -0.005438834, -0.7788164, 0.62664175]],
+	[[0.022430236, 1.0846127e-07, -1.7428562e-08, 1], [6.938894e-18, -9.62965e-35, -1.3877788e-17, 1]],
+	[[0.0011314574, -0.019294508, 0.01542875, 1], [-0.47976637, -0.37993452, -0.63019824, 0.47783276]],
+	[[0.0628784, -0.0028440945, -0.0003315112, 1], [-0.094065815, 0.062634066, -0.69046116, 0.7144873]],
+	[[0.029874247, -3.4247638e-08, -9.126629e-08, 1], [0.00313052, 0.03775632, -0.7113834, 0.7017823]],
+	[[0.017978692, -2.8448923e-09, -2.0797508e-07, 1], [-0.008087321, -0.003009417, -0.7361885, 0.6767216]],
+	[[0.01801794, -2.00012e-08, 6.59746e-08, 1], [0, 0, 1.9081958e-17, 1]],
+	[[0.019716311, 0.002801723, 0.093936935, 1], [-0.54886997, 0.1177861, -0.7578353, 0.33249632]],
+	[[-0.0075385696, 0.01764465, 0.10240429, 1], [0.13243657, -0.8730836, -0.45493412, -0.114980996]],
+	[[-0.0031984635, 0.0072115273, 0.11665362, 1], [0.17098099, -0.92266804, -0.34507802, -0.019245595]],
+	[[2.6269245e-05, -0.007118772, 0.13072418, 1], [0.15011512, -0.952169, -0.25831383, -0.064137466]],
+	[[-0.0018780098, -0.02256182, 0.14003526, 1], [0.07684197, -0.97957754, -0.18576658, -0.0037347008]]
+])
+
+
+def q_conjugate(q):
+	w, x, y, z = q
+	return [w, -x, -y, -z]
 
 def q_mult(q1, q2):
-    w1, x1, y1, z1 = q1
-    w2, x2, y2, z2 = q2
-    w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
-    x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
-    y = w1 * y2 + y1 * w2 + z1 * x2 - x1 * z2
-    z = w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2
-    return np.array([w, x, y, z])
+	w1, x1, y1, z1 = q1
+	w2, x2, y2, z2 = q2
+	w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
+	x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
+	y = w1 * y2 + y1 * w2 + z1 * x2 - x1 * z2
+	z = w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2
+	return np.array([w, x, y, z])
 
-def rotate_pose(pose):
+def qv_mult(q1, v1):
+	# Rotates a vector by a quaternion
+	x1, y1, z1 = v1
+	q2 = (0.0, x1, y1, z1)
+	return q_mult(q_mult(q1, q2), q_conjugate(q1))[1:]
+
+def build_pose(pose, rotate=False, parent_row=None):
 	'''
-	For all the points in the hand
-	we rotate by the quaternion
-	returns rotated points
-	See: https://www.meccanismocomplesso.org/en/hamiltons-quaternions-and-3d-rotation-with-python/
+	Expects to be fed an array of nodes where
+	each node has one parent and one child.
+	Build hand splits up the hand then feeds it to this
+	functon. e.g. just the thumb. 
 	'''
-	# x,y,z coordinates of the pose
-	rotated_points = []
+
+	if (parent_row is not None):
+		quad = parent_row[1,:].copy()
+		point = parent_row[0,:3].copy()
+	else:
+		# Set Starting point, root
+		#quad = np.array([1.000000, -0.000000, -0.000000, 0.000000])
+		#point = np.array([0.000000, 0.000000, 0.000000])
+		# Set Starting point, wrist
+		quad = np.array([-0.055147, -0.078608, 0.920279, -0.379296])
+		point = np.array([0.034038, 0.036503, 0.164722, 1.000000])
+	points = []
 
 	for row in pose:
-		c, q = row
-		print(c)
-		# Convert Quaternion layout that glb uses
+
+		c = np.array(row[0,:3])
+		q = np.array(row[1,:])
+		# Change quaternion representation between glb and SteamVR
 		x, y, z, w = q
-		sp_x, sp_y, sp_z, one  = c
-		'''
-		In SteamVR
-		+Y is up
-		+X is to the right
-		-Z is forward
-		In MatplotLib
-		+Z is up
-		+Y is to the right
-		-X is forward
-		'''
-		vec = [0, sp_x, sp_z, sp_y]
-		r = [w, x, y, z]
-		# Calculate the Quaternion Conjugate
-		r_c = [w, -x, -y, -z]
-		# Rotate the point
-		#rotated_point = quaternion_multiply(quaternion_multiply(r, vec), r_c)
-		rotated_point = q_mult(q_mult(r, vec), r_c)
-		print("rp, ",rotated_point)
-		# Due to quaternion representation, the first element will always be 0
-		rotated_points.append(rotated_point[1:])
-	rotated_points = np.array(rotated_points)
-	#print(rotated_points)
-	return rotated_points
+		#q = np.array([-w, -x, -y, -z])
 
-def local_to_global_hand(points):
+		if (rotate):
+			# Multiply the quaternions
+			#quad = q_mult(q,  quad)
+			quad = q_mult(quad,  q)
+
+			# Rotate the point
+			rp = qv_mult(quad, c)
+		else:
+			rp = c
+		# Get the global point
+		point += rp
+
+		# Add the new point to points
+		points.append(point.copy())
+
+	return points
+
+def build_hand(pose, rotate=False):
 	'''
-	Converts the relative points in SteamHand to global points by building the hand
+	The hand is defined relatively using a series of nodes,
+	Each node has a parent leading back to the wrist,
+	in order to plot the hand, the global positions need to 
+	be calculated. Each position and rotation w.r.t the parents. 
+	Think of the turtle / logo programming enviroment.
+
+	Input is expected to follow the format listed above
+
 	'''
-	c = points
-	# Add the wrist
-	xs = [c[1][0]]
-	ys = [c[1][1]]
-	zs = [c[1][2]]
-	# get the x,y,z rotated coordinates of the pose
-	# Seperate the fingers
-	thumb = c[2:6]
-	index = c[6:11]
-	middle = c[11:16]
-	ring = c[16:21]
-	pinky = c[21:26]
 
-	# Read the file format into x,y,z and build the hand
-	fingers = [thumb, index, middle, ring, pinky]
-	for finger in fingers:
-		# Use the wrist the first time
-		x = c[1][0]
-		y = c[1][1]
-		z = c[1][2]
+	thumb_start = 2
+	index_start = 6
+	middle_start = 11
+	ring_start = 16
+	pinky_start = 21
 
-		for point in finger:
-			x += point[0]
-			y += point[1]
-			z += point[2]
-			xs.append(x)
-			ys.append(y)
-			zs.append(z)
+	# Splitting up each parent
+	root = pose[0, :, :]
+	wrist = pose[1, :, :]
+	thumb_pose = pose[2:6, :, :]
+	index_pose = pose[6:11, :,:]
+	middle_pose = pose[11:16, :,:]
+	ring_pose = pose[16:21, :, :]
+	pinky_pose = pose[21:26, :, :]
+	
+	# Building all the children
+	thumb = build_pose(thumb_pose, rotate, wrist)
+	index = build_pose(index_pose, rotate, wrist)
+	middle = build_pose(middle_pose, rotate, wrist)
+	ring = build_pose(ring_pose, rotate, wrist)
+	pinky = build_pose(pinky_pose, rotate, wrist)
+	hand = [[wrist[0, :3]], thumb, index, middle, ring, pinky]
 
-	hand_points = np.array([xs, ys, zs]).T
-	return hand_points
+	# Conbine them into one model
+	points = np.concatenate(hand)
 
-def plot_steam_hand_points(points, title="Steam Hand Points"):
-	'''
-	Expects the *relative* coordinates of a pose, not including the quaternions
-	points.shape == (31, 3)
-	'''
+	return points
+
+
+def plot_points(points):
+	# Plot the Points
+	x = points[:,0]
+	y = points[:,1]
+	z = points[:,2]
 	# Plot setup
-	fig = plt.figure(title)
-	ax = fig.add_subplot(111, projection='3d', xlim=(-0.2, 0.2), ylim=(-0.2, 0.2), zlim=(0, 0.4))
+	fig = plt.figure()
+	ax = fig.add_subplot(111, projection='3d')
 	ax.set_xlabel('X [m]')
 	ax.set_ylabel('Y [m]')
 	ax.set_zlabel('Z [m]')
 
-	hand_points = local_to_global_hand(points)
-	print("hps", hand_points.shape)
-
-	xs = hand_points[:,0]
-	ys = hand_points[:,1]
-	zs = hand_points[:,2]
-	ax.scatter(xs,ys,zs)
+	ax.scatter(x,y,z)
 	plt.show()
 
+def draw_line(p, a, ax, color="blue", b=None):
+	if (b == None): b = a + 1
+	l = plt3d.art3d.Line3D(
+	 [p[a,0], p[b,0]],
+	 [p[a,1], p[b,1]],
+	 [p[a,2], p[b,2]], color=color)
+	ax.add_line(l)
 
-def plot_steam_hand(rel_points, title="Steam Hand"):
-	'''
-	Expects the *relative* coordinates of a pose, not including the quaternions
-	points.shape == (31, 3)
-	'''
-	# Plot setup
-	fig = plt.figure(title)
-	ax = fig.add_subplot(111, projection='3d', xlim=(-0.2, 0.2), ylim=(-0.2, 0.2), zlim=(0, 0.4))
+def plot_steam_hand(points, title="Steam Hand", ax=None):
+	if (ax == None):
+		# Plot setup
+		fig = plt.figure(title)
+		ax = fig.add_subplot(111, projection='3d', xlim=(-0.2, 0.2), ylim=(-0.2, 0.2), zlim=(0, 0.4))
 	ax.set_xlabel('X [m]')
 	ax.set_ylabel('Y [m]')
 	ax.set_zlabel('Z [m]')
 
-	hand_points = local_to_global_hand(rel_points)
+	hand_points = points
 	xs = hand_points[:,0]
 	ys = hand_points[:,1]
 	zs = hand_points[:,2]
-	print("Rel", rel_points.shape)
-	print("Global", hand_points.shape)
 	# Plot the Points that make up the hand
 	ax.scatter(xs,ys,zs)
 
@@ -257,56 +337,121 @@ def plot_steam_hand(rel_points, title="Steam Hand"):
 	c = hand_points
 
 	# Draw the thumb
-	for n in [1,2,3]:
-		l = plt3d.art3d.Line3D([c[n,0], c[n+1,0]], [c[n,1], c[n+1,1]], [c[n,2], c[n+1,2]], color="lime")
-		ax.add_line(l)
+	for n in [2,3]:
+		draw_line(c, n, ax, "lime")
 	# Index
 	for n in range(5,9):
-		l = plt3d.art3d.Line3D([c[n,0], c[n+1,0]], [c[n,1], c[n+1,1]], [c[n,2], c[n+1,2]], color='firebrick')
-		ax.add_line(l)
+		draw_line(c, n, ax, "firebrick")
 	# Middle
 	for n in range(10,14):
-		l = plt3d.art3d.Line3D([c[n,0], c[n+1,0]], [c[n,1], c[n+1,1]], [c[n,2], c[n+1,2]], color='purple')
-		ax.add_line(l)
+		draw_line(c, n, ax, "purple")
 	# Ring Finger
 	for n in range(15,19):
-		l = plt3d.art3d.Line3D([c[n,0], c[n+1,0]], [c[n,1], c[n+1,1]], [c[n,2], c[n+1,2]], color='blue')
-		ax.add_line(l)
+		draw_line(c, n, ax, "blue")
 	# Pinky finger
 	for n in range(20,24):
-		l = plt3d.art3d.Line3D([c[n,0], c[n+1,0]], [c[n,1], c[n+1,1]], [c[n,2], c[n+1,2]], color='pink')
-		ax.add_line(l)
+		draw_line(c, n, ax, "pink")
 	
 	# Draw lines to connect the metacarpals
 	for i in range(4):
-		ms = [2, 6,11,16,21]
+		ms = [1, 5, 10, 15, 20]
 		l = plt3d.art3d.Line3D([c[ms[i],0], c[ms[i+1],0]], [c[ms[i],1], c[ms[i+1],1]], [c[ms[i],2], c[ms[i+1],2]], color="aqua")
 		ax.add_line(l)
 	# Draw lines to connect the hand
-	for i in range(4):
-		ms = [1, 5,10,15,20]
-		l = plt3d.art3d.Line3D([c[ms[i],0], c[ms[i+1],0]], [c[ms[i],1], c[ms[i+1],1]], [c[ms[i],2], c[ms[i+1],2]], color="aqua")
-		ax.add_line(l)
-	# Connect the bottom of the hand together
-	l = plt3d.art3d.Line3D([c[1,0], c[20,0]], [c[1,1], c[20,1]], [c[1,2], c[20,2]], color="aqua")
-	ax.add_line(l)
-	l = plt3d.art3d.Line3D([c[1,0], c[0,0]], [c[1,1], c[0,1]], [c[1,2], c[0,2]], color="aqua")
-	ax.add_line(l)
-	l = plt3d.art3d.Line3D([c[0,0], c[20,0]], [c[0,1], c[20,1]], [c[0,2], c[20,2]], color="aqua")
-	ax.add_line(l)
-
+	# Connect the Thumb Metacarpal to the base of the index
+	draw_line(c, 1, ax, "aqua", 2)
+	draw_line(c, 2, ax, "aqua", 5)
+	# Palm to pinky base
+	draw_line(c, 1, ax, "aqua", 20)
 
 	plt.show()
 
+def lerp(a, b, f):
+	return a + f * (b - a)
+
+def lerp_quat(q1, q2, f):
+	# Returns a lerped quat between q1 and q2
+	w1, x1, y1, z1 = q1
+	w2, x2, y2, z2 = q2
+
+	w = lerp(w1,w2,f)
+	x = lerp(x1,x2,f)
+	y = lerp(y1,y2,f)
+	z = lerp(z1,z2,f)
+	return [w, x, y, z]
+
+def lerp_pos(p1, p2, f):
+	# Returns a lerped position between q1 and q2
+	# Is this function needed?
+	x1, y1, z1, w = p1
+	x2, y2, z2, w = p2
+	x = lerp(x1,x2,f)
+	y = lerp(y1,y2,f)
+	z = lerp(z1,z2,f)
+	return [x, y, z, 1.0]
+
+def lerp_pose(amount):
+	'''Amount should be between 0 and 1'''
+	open_pose = right_pose
+	closed_pose = right_fist_pose
+
+	# Make a placeholder new pose
+	new_pose = []
+
+	for i in range(0,31):
+		open_row = open_pose[i]
+		open_c = open_row[0, :]
+		open_q = open_row[1, :]
+
+		closed_row = closed_pose[i]
+		closed_c = closed_row[0, :]
+		closed_q = closed_row[1, :]
+
+		c = lerp_pos(open_c, closed_c, amount)
+		q = lerp_quat(open_q, closed_q, amount)
+
+		new_row = np.array([c,q])
+		new_pose.append(new_row)
+
+	new_pose = np.array(new_pose)
+	return new_pose
+
 if __name__ == "__main__":
-	pose_quards = right_fist_pose[:,0,:3]
-	# Try building a hand from the glb only using the x,y,z
-	#plot_steam_hand_points(pose_quards)
+	print("Open Pose Shape: ", right_pose.shape)
 
-	plot_steam_hand(pose_quards)
+	points = build_hand(right_pose, False)
+	print("Points Shape",points.shape)
+	print(points)
+	#plot_points(points)
+	plot_steam_hand(points, "Right Pose without Rotation")
 
-	# # rotates each point in the pose, around the origin by the quaternion then builds the hand
-	right_fist_pose = rotate_pose(right_fist_pose)
-	plot_steam_hand(right_fist_pose, "Right fist pose")
-	right_pose = rotate_pose(right_pose)
-	plot_steam_hand(right_pose, "Right Open pose")
+	points = build_hand(right_fist_pose, False)
+	print("Points Shape",points.shape)
+	print(points)
+	plot_steam_hand(points, "Fist Pose without Rotation")
+
+	points = build_hand(right_pose, True)
+	print("Points Shape",points.shape)
+	print(points)
+	#plot_points(points)
+	plot_steam_hand(points, "Right pose with Rotation")
+
+	points = build_hand(right_pose2, True)
+	print("Points Shape",points.shape)
+	print(points)
+	#plot_points(points)
+	plot_steam_hand(points, "Right pose2 with Rotation")
+
+	points = build_hand(right_fist_pose, True)
+	print("Points Shape",points.shape)
+	print(points)
+	plot_steam_hand(points, "Fist Pose with Rotation")
+
+	points = build_hand(right_fist_pose2, True)
+	print("Points Shape",points.shape)
+	print(points)
+	plot_steam_hand(points, "Fist Pose2 with Rotation")
+
+	pose = lerp_pose(0.5)
+	points = build_hand(pose, True)
+	plot_steam_hand(points, "Lerped Pose")
