@@ -45,7 +45,7 @@ Steam's OpenVR Uses (w,z,y,z) for Quaternions as defined in HmdQuaternionf_t
 31 REF:finger_pinky_r_aux
 '''
 
-right_pose = np.array([
+right_open_pose = np.array([
 	# Position{HmdVector4_t} (x,y,z,1) , Quaternion{HmdQuaternionf_t} (w,x,y,z)
 	# https://github.com/ValveSoftware/openvr/issues/505
 	[[0.000000, 0.000000, 0.000000, 1.000000], [1.000000, -0.000000, -0.000000, 0.000000]], # 0 - Root Node, Dan Skipped the Ref:Root
@@ -82,7 +82,7 @@ right_pose = np.array([
 	[[0.031806, -0.087214, 0.121015, 1.000000], [-0.003659, 0.758407, 0.639342, 0.126678]], # pinky aux
 ])
 
-right_pose2 = np.array([
+right_open_pose2 = np.array([
 	# Position{HmdVector4_t} (x,y,z,1) , Quaternion{HmdQuaternionf_t} (w,x,y,z)
 	# Sourced from Unity SteamVR plugin.
 	[[0, 0, 0, 1], [-6.123234e-17, 1, 6.123234e-17, -4.371139e-08]],
@@ -187,6 +187,73 @@ right_fist_pose2 = np.array([
 	[[-0.0018780098, -0.02256182, 0.14003526, 1], [0.07684197, -0.97957754, -0.18576658, -0.0037347008]]
 ])
 
+left_open_pose = np.array([
+    [[0.000000, 0.000000, 0.000000, 1.000000], [1.000000, -0.000000, -0.000000, 0.000000]],
+    [[-0.034038, 0.036503, 0.164722, 1.000000], [-0.055147, -0.078608, -0.920279, 0.379296]],
+    [[-0.012083, 0.028070, 0.025050, 1.000000], [0.464112, 0.567418, 0.272106, 0.623374]],
+    [[0.040406, 0.000000, -0.000000, 1.000000], [0.994838, 0.082939, 0.019454, 0.055130]],
+    [[0.032517, 0.000000, 0.000000, 1.000000], [0.974793, -0.003213, 0.021867, -0.222015]],
+    [[0.030464, -0.000000, -0.000000, 1.000000], [1.000000, -0.000000, -0.000000, 0.000000]],
+    [[0.000632, 0.026866, 0.015002, 1.000000], [0.644251, 0.421979, -0.478202, 0.422133]],
+    [[0.074204, -0.005002, 0.000234, 1.000000], [0.995332, 0.007007, -0.039124, 0.087949]],
+    [[0.043930, -0.000000, -0.000000, 1.000000], [0.997891, 0.045808, 0.002142, -0.045943]],
+    [[0.028695, 0.000000, 0.000000, 1.000000], [0.999649, 0.001850, -0.022782, -0.013409]],
+    [[0.022821, 0.000000, -0.000000, 1.000000], [1.000000, -0.000000, 0.000000, -0.000000]],
+    [[0.002177, 0.007120, 0.016319, 1.000000], [0.546723, 0.541276, -0.442520, 0.460749]],
+    [[0.070953, 0.000779, 0.000997, 1.000000], [0.980294, -0.167261, -0.078959, 0.069368]],
+    [[0.043108, 0.000000, 0.000000, 1.000000], [0.997947, 0.018493, 0.013192, 0.059886]],
+    [[0.033266, 0.000000, 0.000000, 1.000000], [0.997394, -0.003328, -0.028225, -0.066315]],
+    [[0.025892, -0.000000, 0.000000, 1.000000], [0.999195, -0.000000, 0.000000, 0.040126]],
+    [[0.000513, -0.006545, 0.016348, 1.000000], [0.516692, 0.550143, -0.495548, 0.429888]],
+    [[0.065876, 0.001786, 0.000693, 1.000000], [0.990420, -0.058696, -0.101820, 0.072495]],
+    [[0.040697, 0.000000, 0.000000, 1.000000], [0.999545, -0.002240, 0.000004, 0.030081]],
+    [[0.028747, -0.000000, -0.000000, 1.000000], [0.999102, -0.000721, -0.012693, 0.040420]],
+    [[0.022430, -0.000000, 0.000000, 1.000000], [1.000000, 0.000000, 0.000000, 0.000000]],
+    [[-0.002478, -0.018981, 0.015214, 1.000000], [0.526918, 0.523940, -0.584025, 0.326740]],
+    [[0.062878, 0.002844, 0.000332, 1.000000], [0.986609, -0.059615, -0.135163, 0.069132]],
+    [[0.030220, 0.000000, 0.000000, 1.000000], [0.994317, 0.001896, -0.000132, 0.106446]],
+    [[0.018187, 0.000000, 0.000000, 1.000000], [0.995931, -0.002010, -0.052079, -0.073526]],
+    [[0.018018, 0.000000, -0.000000, 1.000000], [1.000000, 0.000000, 0.000000, 0.000000]],
+    [[-0.006059, 0.056285, 0.060064, 1.000000], [0.737238, 0.202745, 0.594267, 0.249441]],
+    [[-0.040416, -0.043018, 0.019345, 1.000000], [-0.290331, 0.623527, -0.663809, -0.293734]],
+    [[-0.039354, -0.075674, 0.047048, 1.000000], [-0.187047, 0.678062, -0.659285, -0.265683]],
+    [[-0.038340, -0.090987, 0.082579, 1.000000], [-0.183037, 0.736793, -0.634757, -0.143936]],
+    [[-0.031806, -0.087214, 0.121015, 1.000000], [-0.003659, 0.758407, -0.639342, -0.126678]],
+])
+
+left_fist_pose = np.array([
+    [[0.000000, 0.000000, 0.000000, 1.000000], [1.000000, -0.000000, -0.000000, 0.000000]],
+    [[-0.034038, 0.036503, 0.164722, 1.000000], [-0.055147, -0.078608, -0.920279, 0.379296]],
+    [[-0.016305, 0.027529, 0.017800, 1.000000], [0.225703, 0.483332, 0.126413, 0.836342]],
+    [[0.040406, 0.000000, -0.000000, 1.000000], [0.894335, -0.013302, -0.082902, 0.439448]],
+    [[0.032517, 0.000000, 0.000000, 1.000000], [0.842428, 0.000655, 0.001244, 0.538807]],
+    [[0.030464, -0.000000, -0.000000, 1.000000], [1.000000, -0.000000, -0.000000, 0.000000]],
+    [[0.003802, 0.021514, 0.012803, 1.000000], [0.617314, 0.395175, -0.510874, 0.449185]],
+    [[0.074204, -0.005002, 0.000234, 1.000000], [0.737291, -0.032006, -0.115013, 0.664944]],
+    [[0.043287, -0.000000, -0.000000, 1.000000], [0.611381, 0.003287, 0.003823, 0.791321]],
+    [[0.028275, 0.000000, 0.000000, 1.000000], [0.745388, -0.000684, -0.000945, 0.666629]],
+    [[0.022821, 0.000000, -0.000000, 1.000000], [1.000000, -0.000000, 0.000000, -0.000000]],
+    [[0.005787, 0.006806, 0.016534, 1.000000], [0.514203, 0.522315, -0.478348, 0.483700]],
+    [[0.070953, 0.000779, 0.000997, 1.000000], [0.723653, -0.097901, 0.048546, 0.681458]],
+    [[0.043108, 0.000000, 0.000000, 1.000000], [0.637464, -0.002366, -0.002831, 0.770472]],
+    [[0.033266, 0.000000, 0.000000, 1.000000], [0.658008, 0.002610, 0.003196, 0.753000]],
+    [[0.025892, -0.000000, 0.000000, 1.000000], [0.999195, -0.000000, 0.000000, 0.040126]],
+    [[0.004123, -0.006858, 0.016563, 1.000000], [0.489609, 0.523374, -0.520644, 0.463997]],
+    [[0.065876, 0.001786, 0.000693, 1.000000], [0.759970, -0.055609, 0.011571, 0.647471]],
+    [[0.040331, 0.000000, 0.000000, 1.000000], [0.664315, 0.001595, 0.001967, 0.747449]],
+    [[0.028489, -0.000000, -0.000000, 1.000000], [0.626957, -0.002784, -0.003234, 0.779042]],
+    [[0.022430, -0.000000, 0.000000, 1.000000], [1.000000, 0.000000, 0.000000, 0.000000]],
+    [[0.001131, -0.019295, 0.015429, 1.000000], [0.479766, 0.477833, -0.630198, 0.379934]],
+    [[0.062878, 0.002844, 0.000332, 1.000000], [0.827001, 0.034282, 0.003440, 0.561144]],
+    [[0.029874, 0.000000, 0.000000, 1.000000], [0.702185, -0.006716, -0.009289, 0.711903]],
+    [[0.017979, 0.000000, 0.000000, 1.000000], [0.676853, 0.007956, 0.009917, 0.736009]],
+    [[0.018018, 0.000000, -0.000000, 1.000000], [1.000000, 0.000000, 0.000000, 0.000000]],
+    [[0.019716, 0.002802, 0.093937, 1.000000], [0.377286, -0.540831, 0.150446, -0.736562]],
+    [[0.000171, 0.016473, 0.096515, 1.000000], [-0.006456, 0.022747, -0.932927, -0.359287]],
+    [[0.000448, 0.001536, 0.116543, 1.000000], [-0.039357, 0.105143, -0.928833, -0.353079]],
+    [[0.003949, -0.014869, 0.130608, 1.000000], [-0.055071, 0.068695, -0.944016, -0.317933]],
+    [[0.003263, -0.034685, 0.139926, 1.000000], [0.019690, -0.100741, -0.957331, -0.270149]],
+])
 
 def q_conjugate(q):
 	w, x, y, z = q
@@ -230,6 +297,9 @@ def build_pose(pose, rotate=False, parent_row=None):
 	for row in pose:
 
 		c = np.array(row[0,:3])
+		x , y , z = c
+		c = [x, z, y]
+
 		q = np.array(row[1,:])
 		# Change quaternion representation between glb and SteamVR
 		x, y, z, w = q
@@ -292,6 +362,39 @@ def build_hand(pose, rotate=False):
 
 	return points
 
+def lerp_fingers(fingers, open_pose, closed_pose):
+	'''
+	expects an array of 5 finger vals between 0 and 1
+	returns points that represent the lerped hand
+	'''
+
+	# Split up the hand
+	wrist = open_pose[0:2, :, :]
+	thumb_pose_o = open_pose[2:6, :, :]
+	index_pose_o = open_pose[6:11, :,:]
+	middle_pose_o = open_pose[11:16, :,:]
+	ring_pose_o = open_pose[16:21, :, :]
+	pinky_pose_o = open_pose[21:26, :, :]
+
+	thumb_pose_c = closed_pose[2:6, :, :]
+	index_pose_c = closed_pose[6:11, :,:]
+	middle_pose_c = closed_pose[11:16, :,:]
+	ring_pose_c = closed_pose[16:21, :, :]
+	pinky_pose_c = closed_pose[21:26, :, :]
+	# Lerp individual parts
+	thumb_pose = lerp_pose(fingers[0], thumb_pose_o, thumb_pose_c)
+	index_pose = lerp_pose(fingers[1], index_pose_o, index_pose_c)
+	middle_pose = lerp_pose(fingers[2], middle_pose_o, middle_pose_c)
+	ring_pose = lerp_pose(fingers[3], ring_pose_o, ring_pose_c)
+	pinky_pose = lerp_pose(fingers[4], pinky_pose_o, pinky_pose_c)
+
+	# Put the hand back together
+	hand = [wrist, thumb_pose, index_pose, middle_pose, ring_pose, pinky_pose]
+	# Conbine them into one model
+	pose = np.concatenate(hand)
+
+	points = build_hand(pose, True)
+	return points
 
 def plot_points(points):
 	# Plot the Points
@@ -390,15 +493,17 @@ def lerp_pos(p1, p2, f):
 	z = lerp(z1,z2,f)
 	return [x, y, z, 1.0]
 
-def lerp_pose(amount):
+def lerp_pose(amount, open_pose=None, closed_pose=None):
 	'''Amount should be between 0 and 1'''
-	open_pose = right_pose
-	closed_pose = right_fist_pose
+	if (open_pose is None):
+		open_pose = right_open_pose
+		closed_pose = right_fist_pose
 
 	# Make a placeholder new pose
 	new_pose = []
+	pose_size = open_pose.shape[0] # E.g. 31 for full pose
 
-	for i in range(0,31):
+	for i in range(0, pose_size):
 		open_row = open_pose[i]
 		open_c = open_row[0, :]
 		open_q = open_row[1, :]
@@ -417,9 +522,9 @@ def lerp_pose(amount):
 	return new_pose
 
 if __name__ == "__main__":
-	print("Open Pose Shape: ", right_pose.shape)
+	print("Open Pose Shape: ", right_open_pose.shape)
 
-	points = build_hand(right_pose, False)
+	points = build_hand(right_open_pose, False)
 	print("Points Shape",points.shape)
 	print(points)
 	#plot_points(points)
@@ -428,15 +533,15 @@ if __name__ == "__main__":
 	points = build_hand(right_fist_pose, False)
 	print("Points Shape",points.shape)
 	print(points)
-	plot_steam_hand(points, "Fist Pose without Rotation")
+	plot_steam_hand(points, "Right Fist Pose without Rotation")
 
-	points = build_hand(right_pose, True)
+	points = build_hand(right_open_pose, True)
 	print("Points Shape",points.shape)
 	print(points)
 	#plot_points(points)
 	plot_steam_hand(points, "Right pose with Rotation")
 
-	points = build_hand(right_pose2, True)
+	points = build_hand(right_open_pose2, True)
 	print("Points Shape",points.shape)
 	print(points)
 	#plot_points(points)
@@ -445,13 +550,23 @@ if __name__ == "__main__":
 	points = build_hand(right_fist_pose, True)
 	print("Points Shape",points.shape)
 	print(points)
-	plot_steam_hand(points, "Fist Pose with Rotation")
+	plot_steam_hand(points, "Right Fist Pose with Rotation")
 
 	points = build_hand(right_fist_pose2, True)
 	print("Points Shape",points.shape)
 	print(points)
-	plot_steam_hand(points, "Fist Pose2 with Rotation")
+	plot_steam_hand(points, "Right Fist Pose2 with Rotation")
+	points = build_hand(left_open_pose, True)
+
+	print("Points Shape",points.shape)
+	print(points)
+	plot_steam_hand(points, "Left Pose with Rotation")
+
+	points = build_hand(left_fist_pose, True)
+	print("Points Shape",points.shape)
+	print(points)
+	plot_steam_hand(points, "Left Fist Pose with Rotation")
 
 	pose = lerp_pose(0.5)
 	points = build_hand(pose, True)
-	plot_steam_hand(points, "Lerped Pose")
+	plot_steam_hand(points, "Lerped Right Pose")
