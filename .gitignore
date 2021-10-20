@@ -3,5 +3,6 @@ __pycache__/*
 */.ipynb_checkpoints/*
 
 # Stop people uploading data unless they really know what they're doing
+*/data/*
 *.dat
 *.csv

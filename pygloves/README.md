@@ -33,6 +33,12 @@ If that works:
 8. Run `python plot_emgs.py` to confirm the Myo is working.
 9. `python .\predictor_basic.py`
 
+
+
+Known problems:
+
+For predictor_basic, only class 2 seems to work, which should move the index finger but seems to close the whole hand.  While this isn't completely solved, opening com0com and resetting the comports seems to often fix this.
+
 ### plot_emgs.py  
 Plots EMG signals (line graphs for each channel) coming from the Myo using pygame.   
 

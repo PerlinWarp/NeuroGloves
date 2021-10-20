@@ -21,6 +21,7 @@ if __name__ == '__main__':
 			print(read, type(read))
 			steam_ser.write(read)
 		except KeyboardInterrupt:
-			glove_ser.flushInput()
+			print("Exiting...")
+			glove_ser.flush()
 			glove_ser.close()
 			steam_ser.close()
