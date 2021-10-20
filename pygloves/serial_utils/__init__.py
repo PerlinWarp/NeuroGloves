@@ -1,2 +1,0 @@
-from serial_utils.serial_read import decode_alpha_serial
-from serial_utils.serial_read import decode_legacy_serial
