@@ -1,15 +1,13 @@
 import multiprocessing
-from myo_serial import MyoRaw
 import numpy as np
 import serial
 
-def pack_vals(arr):
-		# arr should be of length 13
-		return b"%d&%d&%d&%d&%d&512&512&0&0&0&0&%d&0\n" % tuple(arr)
+from pyomyo import Myo, emg_mode
+from pygloves_utils import serial_utils as s
 
 # ------------ Myo Setup ---------------
 def myo_worker(q):
-	m = MyoRaw(raw=False, filtered=True)
+	m = Myo(mode=emg_mode.PREPROCESSED)
 	m.connect()
 	
 	def add_to_queue(emg, movement):
@@ -44,8 +42,7 @@ class Predictor:
 
 	def predict(self, emg_data):
 		'''
-		return [0,1,2,3,4,5]
-		where 5 is the grasp (0/1)
+		return [0,1,2,3,4]
 		'''
 		emg_data = np.array(emg_data).reshape(1,8)
 
@@ -66,12 +63,9 @@ class Predictor:
 			print("Grasping")
 			self.grasp = True
 			s = 1010
+
 		# Make a prediction from s
 		pred = [s]*5
-		if self.grasp:
-			pred.append(1)
-		else:
-			pred.append(0)
 
 		# Update last grasp
 		print(self.grasp, self.last_grasp)
@@ -81,8 +75,6 @@ class Predictor:
 if __name__ == '__main__':
 	# Serial Setup
 	ser = serial.Serial('COM6','115200')  # open serial port
-	print("Writing to", ser.name)         # check which port was really used
-	ser.write(b'hello\n')     # write a string
 
 	q = multiprocessing.Queue()
 	p = multiprocessing.Process(target=myo_worker, args=(q,))
@@ -94,9 +86,10 @@ if __name__ == '__main__':
 				emg = list(q.get())
 				print("EMG:", emg)
 				e = predictor.predict(emg)
+				print("e", e)
 
 				if e is not None:
-					vals = pack_vals(e)
+					vals = s.encode_alpha_serial(e)
 					print("Vals: {:03d},{:03d},{:03d},{:03d},{:03d}".format(e[0],e[1],e[2],e[3],e[4]))
 					ser.write(vals)
 

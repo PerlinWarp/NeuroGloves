@@ -1,6 +1,8 @@
 __pycache__/*
-*/__pycache__/*
-*/.ipynb_checkpoints/*
+**/__pycache__/*
+**/.ipynb_checkpoints/*
+
+*.pyc
 
 # Stop people uploading data unless they really know what they're doing
 */data/*

@@ -1,5 +1,4 @@
 import multiprocessing
-from myo_serial import MyoRaw
 import numpy as np
 
 import os
@@ -10,9 +9,8 @@ import joblib
 
 import serial
 
-def pack_vals(arr):
-		# arr should be of length 13
-		return b"%d&%d&%d&%d&%d&512&512&0&0&0&0&0&0\n" % tuple(arr)
+from pyomyo import Myo, emg_mode
+from pygloves_utils import serial_utils as s
 
 # ------------ Myo Setup ---------------
 def myo_worker(q):
@@ -87,7 +85,7 @@ if __name__ == '__main__':
 				e = predict(emg)
 
 				if e is not None:
-					vals = pack_vals(e)
+					vals = s.encode_alpha_serial(e)
 					print("Vals: {:03d},{:03d},{:03d},{:03d},{:03d}".format(e[0],e[1],e[2],e[3],e[4]))
 					ser.write(vals)
 

@@ -1,7 +1,9 @@
 import multiprocessing
 from collections import deque
-from myo_serial import MyoRaw
 import numpy as np
+
+from pyomyo import Myo, emg_mode
+from pygloves_utils import serial_utils as s
 
 import os
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
@@ -12,10 +14,6 @@ import joblib
 import serial
 
 SEQ_LEN = 20
-
-def pack_vals(arr):
-		# arr should be of length 13
-		return b"%d&%d&%d&%d&%d&0&0&0&0&0&0&0&0\n" % tuple(arr)
 
 # ------------ Myo Setup ---------------
 def myo_worker(q):
@@ -96,7 +94,7 @@ if __name__ == '__main__':
 					e = predict(emgs)
 
 					if e is not None:
-						vals = pack_vals(e)
+						vals = s.encode_alpha_serial(e)
 						print("Vals: {:03d},{:03d},{:03d},{:03d},{:03d}".format(vals[0],vals[1],vals[2],vals[3],vals[4]))
 						ser.write(vals)
 				else:

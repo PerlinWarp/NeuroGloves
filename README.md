@@ -28,10 +28,10 @@ Setup Steps:
 5. Move the potentiometer backwards and forwards and see the fingers moving
 6. Press Ctrl+C or Ctrl + Break to stop the process
 
-If that works:
-7. Connect the Myo, put it on and let it warm up.
-8. Run `python plot_emgs.py` to confirm the Myo is working.
-9. `python .\predictor_basic.py`
+If that works:  
+7. Connect the Myo, put it on and let it warm up.  
+8. Run `python plot_emgs.py` to confirm the Myo is working.  
+9. `python .\predictor_basic.py`  
 
 
 

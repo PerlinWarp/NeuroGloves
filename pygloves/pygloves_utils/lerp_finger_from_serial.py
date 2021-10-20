@@ -9,7 +9,7 @@ import bone
 import serial_utils as s
 
 # Use device manager to find the Arduino's serial port.
-COM_PORT = "COM9"
+COM_PORT = "COM7"
 RESET_SCALE = True
 LEGACY_DECODE = False # If false, will use alpha encodings
 
@@ -27,9 +27,7 @@ ax.set_ylim3d([-0.1, 0.1])
 ax.set_zlim3d([0, 0.2])
 
 # ------------ Serial Setup ---------------
-def serial_worker(q):
-	# Open Serial Port
-	COM_PORT = "COM9"
+def serial_worker(q, COM_PORT):
 	ser = serial.Serial(COM_PORT,'115200', timeout=1)  # open serial port
 	print("Listening on "+COM_PORT)
 
@@ -78,7 +76,7 @@ def animate(i):
 	bone.plot_steam_hand(points, "Lerped Pose", ax)
 
 if __name__ == "__main__":
-	p = multiprocessing.Process(target=serial_worker, args=(q,), daemon=True)
+	p = multiprocessing.Process(target=serial_worker, args=(q,COM_PORT, ), daemon=True)
 	p.start()
 	anim = animation.FuncAnimation(fig, animate, blit=False, interval=1)
 	try:

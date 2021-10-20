@@ -4,24 +4,15 @@ import serial
 from collections import deque
 from threading import Lock, Thread
 
-from myo_serial import MyoRaw
+from pyomyo import Myo, emg_mode
+import serial_utils as s
 
 # Arguments
-COM_PORT = "COM8"
+COM_PORT = "COM9"
 FILE_NAME = "myo_raw_glove2" + ".csv"
+MODE = emg_mode.PREPROCESSED
 
 # Serial Setup
-def decode_serial(s):
-	if s == b'':
-		return None
-	else:
-		# Decode the byte string to list of ints
-		s = s.decode().rstrip().split('&')
-		# Get rid of all other data than fingers
-		s = s[0:5]
-		# Cast to ints
-		s = [int(f) for f in s]
-		return s
 
 def serial_worker(port, sarr):
 	ser = serial.Serial(port,'115200', timeout=1)  # open serial port
@@ -30,7 +21,7 @@ def serial_worker(port, sarr):
 	while True:
 		try:
 		    read = ser.readline()
-		    fingers = decode_serial(read)
+		    fingers = s.decode_alpha_serial(read)
 		    if fingers is not None:
 		    	# Update the shared array
 		    	for i in range(0,5):
@@ -45,8 +36,8 @@ def serial_worker(port, sarr):
 # Myo Setup
 # ------------ Myo Setup ---------------
 
-def myo_worker(q):
-	m = MyoRaw(raw=False, filtered=True)
+def myo_worker(q, emg_mode):
+	m = Myo(mode=emg_mode)
 	m.connect()
 	
 	def add_to_queue(emg, movement):
@@ -80,19 +71,19 @@ if __name__ == '__main__':
 	s = multiprocessing.Process(target=serial_worker, args=(COM_PORT, arr,))
 	# Myo Process
 	q = multiprocessing.Queue()
-	p = multiprocessing.Process(target=myo_worker, args=(q,))
+	p = multiprocessing.Process(target=myo_worker, args=(q,MODE,))
 	p.start()
 	s.start()
 
 	myo_data = []
 	glove_data = []
 	glove = [0,1,2,3,4]
+	print("Waiting..")
 	try:
 		while True:	
 			# Wait for Serial to work
 			while glove == [0,1,2,3,4]:
 				glove = list(arr)
-				print("Waiting..")
 
 			while not q.empty():
 				emg = list(q.get())
