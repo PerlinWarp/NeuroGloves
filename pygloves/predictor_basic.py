@@ -9,7 +9,6 @@ import struct
 import sys
 import time
 
-import serial
 import pygame
 from pygame.locals import *
 import numpy as np
@@ -64,10 +63,10 @@ class SVM_Classifier(Live_Classifier):
 
 
 if __name__ == '__main__':
-	# Serial Setup
-	ser = serial.Serial('COM6','115200')  # open serial port
-	ser.flushInput()
-	print("Writing to", ser.name, "\nWaiting for consumer")         # check which port was really used
+	# Set the default values
+	ipc_bools = [False, False, False, False, False, False, False, False]
+	ipc_fingers = [0,0,0,0,0]
+	ipc_joys = [0,0]
 
 	pygame.init()
 	w, h = 800, 320
@@ -91,6 +90,7 @@ if __name__ == '__main__':
 	# Set pygame window name
 	pygame.display.set_caption(m.cls.name)
 
+	last_conf = 0
 	try:
 		while True:
 			# Run the Myo, get more data
@@ -99,10 +99,9 @@ if __name__ == '__main__':
 			m.run_gui(hnd, scr, font, w, h)	
 
 			r = m.history_cnt.most_common(1)[0][0]
-			print(f"Class {r}, \"Confidence\", {m.history_cnt[r]/m.hist_len}")
 			fingers = [0,0,0,0,0]
 			f = int(r)
-			scaled_conf = int(1023 * m.history_cnt[r]/m.hist_len)
+			scaled_conf = int(m.history_cnt[r]/m.hist_len*10)/10
 			if f == 0:
 				pass
 			elif (f == 6): # Grab
@@ -111,19 +110,19 @@ if __name__ == '__main__':
 			else:
 				# We have predicted a finger
 				fingers[f-1] = scaled_conf
-			vals = s.encode_alpha_serial(fingers)
-			print("Fingers", fingers, vals)
-			ser.write(vals)
+			
+			# Send the data to opengloves
+			if not(last_conf == scaled_conf):
+				print("Fingers", fingers)
+				print(f"Class {r}, \"Confidence\", {m.history_cnt[r]/m.hist_len}")
+				s.ipc.send_to_opengloves(fingers, ipc_joys, ipc_bools)
+			last_conf = scaled_conf
 
 	except KeyboardInterrupt:
 		m.disconnect()
 		print()
 		pygame.quit()
-		ser.flushInput()
-		ser.close()
 	finally:
 		m.disconnect()
 		print()
 		pygame.quit()
-		ser.flushInput()
-		ser.close()
