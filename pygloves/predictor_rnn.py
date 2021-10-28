@@ -11,8 +11,6 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 from keras.models import load_model
 import joblib
 
-import serial
-
 SEQ_LEN = 20
 
 # ------------ Myo Setup ---------------
@@ -66,8 +64,7 @@ def predict(emg_data):
 
 if __name__ == '__main__':
 	# Serial Setup
-	ser = serial.Serial('COM6','115200')  # open serial port
-	print("Writing to", ser.name)         # check which port was really used
+	ipc = s.ipc.NamedPipe()
 
 	# Model Setup
 	# Load the Keras model
@@ -91,17 +88,15 @@ if __name__ == '__main__':
 				dq.append(emg)
 				emgs = list(dq)
 				if (len(emgs) == SEQ_LEN):
-					e = predict(emgs)
+					fingers = predict(emgs)
 
-					if e is not None:
-						vals = s.encode_alpha_serial(e)
-						print("Vals: {:03d},{:03d},{:03d},{:03d},{:03d}".format(vals[0],vals[1],vals[2],vals[3],vals[4]))
-						ser.write(vals)
+					if fingers is not None:
+						print("Fingers", fingers)
+						ipc.send(fingers)
 				else:
 					print("dq", emgs)
 
 		except KeyboardInterrupt:
 				print("Ending...")
-				ser.close()             # close port
 				#p.kill()
 				quit()

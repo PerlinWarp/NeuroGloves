@@ -1,6 +1,5 @@
 import multiprocessing
 import numpy as np
-import serial
 
 from pyomyo import Myo, emg_mode
 from pygloves_utils import serial_utils as s
@@ -39,6 +38,7 @@ class Predictor:
 	def __init__(self):
 		self.grasp = False
 		self.last_grasp = False
+		self.last_val = 0
 
 	def predict(self, emg_data):
 		'''
@@ -50,20 +50,9 @@ class Predictor:
 		emg_data = np.abs(emg_data)
 		# Scale the input
 		s = np.sum(emg_data)
-		s = int((s/3000)*1023)
+		s = int((s/3000)*100)/100
 		print("SUM", s)
-		if (s < 200):
-			self.grasp = False
-			if (s < 150):
-				s = 0
-		# Decide the grasp prediction
-		if (s > 600):
-			self.grasp = True
-		if (s > 200 and self.last_grasp == True):
-			print("Grasping")
-			self.grasp = True
-			s = 1010
-
+		
 		# Make a prediction from s
 		pred = [s]*5
 
@@ -73,8 +62,8 @@ class Predictor:
 		return pred
 
 if __name__ == '__main__':
-	# Serial Setup
-	ser = serial.Serial('COM6','115200')  # open serial port
+	# IPS Setup
+	ipc = s.ipc.NamedPipe()
 
 	q = multiprocessing.Queue()
 	p = multiprocessing.Process(target=myo_worker, args=(q,))
@@ -85,16 +74,13 @@ if __name__ == '__main__':
 			while not q.empty():
 				emg = list(q.get())
 				print("EMG:", emg)
-				e = predictor.predict(emg)
-				print("e", e)
+				fingers = predictor.predict(emg)
 
-				if e is not None:
-					vals = s.encode_alpha_serial(e)
-					print("Vals: {:03d},{:03d},{:03d},{:03d},{:03d}".format(e[0],e[1],e[2],e[3],e[4]))
-					ser.write(vals)
+				if (fingers is not None) and (fingers is not predictor.last_val):
+					print("Fingers", fingers)
+					ipc.send(fingers)
+					predictor.last_val = fingers
 
 		except KeyboardInterrupt:
 				print("Ending...")
-				ser.close()             # close port
-				#p.kill()
 				quit()

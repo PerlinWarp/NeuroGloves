@@ -7,8 +7,6 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 from keras.models import load_model
 import joblib
 
-import serial
-
 from pyomyo import Myo, emg_mode
 from pygloves_utils import serial_utils as s
 
@@ -61,9 +59,8 @@ def predict(emg_data):
 
 if __name__ == '__main__':
 	# Serial Setup
-	ser = serial.Serial('COM6','115200')  # open serial port
-	print("Writing to", ser.name)         # check which port was really used
-	ser.write(b'hello\n')     # write a string
+	ipc = s.ipc.NamedPipe()
+
 
 	# Model Setup
 	# Load the Keras model
@@ -82,15 +79,13 @@ if __name__ == '__main__':
 			while not q.empty():
 				emg = list(q.get())
 				print("EMG:", emg)
-				e = predict(emg)
+				fingers = predict(emg)
 
-				if e is not None:
-					vals = s.encode_alpha_serial(e)
-					print("Vals: {:03d},{:03d},{:03d},{:03d},{:03d}".format(e[0],e[1],e[2],e[3],e[4]))
-					ser.write(vals)
+				if fingers is not None:
+					print("Fingers", fingers)
+					ipc.send(fingers)
 
 		except KeyboardInterrupt:
 				print("Ending...")
-				ser.close()             # close port
 				#p.kill()
 				quit()
