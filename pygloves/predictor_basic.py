@@ -64,6 +64,7 @@ class SVM_Classifier(Live_Classifier):
 
 if __name__ == '__main__':
 	# Set the default values
+	ipc = s.ipc.NamedPipe()
 	ipc_bools = [False, False, False, False, False, False, False, False]
 	ipc_fingers = [0,0,0,0,0]
 	ipc_joys = [0,0]
@@ -115,7 +116,7 @@ if __name__ == '__main__':
 			if not(last_conf == scaled_conf):
 				print("Fingers", fingers)
 				print(f"Class {r}, \"Confidence\", {m.history_cnt[r]/m.hist_len}")
-				s.ipc.send_to_opengloves(fingers, ipc_joys, ipc_bools)
+				ipc.send(fingers, ipc_joys, ipc_bools)
 			last_conf = scaled_conf
 
 	except KeyboardInterrupt:
